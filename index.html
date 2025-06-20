@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Underwater AR Experience</title>
+
+    <!-- A-Frame & AR.js -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+      }
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 24px;
+        z-index: 1000;
+      }
+      .model-loading {
+        position: absolute;
+        color: white;
+        font-size: 18px;
+        text-align: center;
+        width: 100%;
+        z-index: 1000;
+      }
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      #soundToggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+      }
+      #soundToggle:hover {
+        background: rgba(0, 0, 0, 0.7);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="loading">Loading Underwater Experience...</div>
+    <button id="soundToggle">🔊</button>
+
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <a-asset-item id="clownfish-glb" src="clownfish.glb"></a-asset-item>
+        <a-asset-item id="turtle-glb" src="turtle.glb"></a-asset-item>
+        <a-asset-item id="octopus-glb" src="octopus.glb"></a-asset-item>
+        <a-asset-item id="shell-glb" src="shell.glb"></a-asset-item>
+        <audio
+          id="ocean-sound"
+          src="underwater-ambience-6201.mp3"
+          preload="auto"
+          loop
+        ></audio>
+      </a-assets>
+
+      <!-- Background Sound -->
+      <a-entity
+        sound="src: #ocean-sound; autoplay: true; loop: true; volume: 0.5"
+        id="background-sound"
+      ></a-entity>
+
+      <!-- Underwater Environment -->
+      <a-entity
+        environment="preset: default; fog: 0.8; skyColor: #0077be; groundColor: #1a1a1a;"
+      ></a-entity>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#0077be" intensity="0.8"></a-light>
+      <a-light
+        type="directional"
+        color="#ffffff"
+        intensity="1.0"
+        position="0 1 1"
+      ></a-light>
+
+      <!-- Bubbles Container -->
+      <a-entity id="bubbles" position="0 0 -5"></a-entity>
+
+      <!-- Marker: Clownfish -->
+      <a-marker preset="hiro" emitevents="true" id="markerClownfish">
+        <a-entity
+          id="clownfish-model"
+          gltf-model="#clownfish-glb"
+          position="0 0.5 0"
+          scale="5 5 5"
+          rotation="0 0 0"
+          animation="property: rotation; to: 0 360 0; dur: 5000; loop: true"
+        ></a-entity>
+        <a-text
+          value="Clownfish"
+          position="0 2 0"
+          color="#FFD700"
+          align="center"
+          scale="2 2 2"
+        ></a-text>
+        <a-entity class="model-loading" position="0 2 0" id="clownfish-loading">
+          <a-text
+            value="Loading Clownfish..."
+            align="center"
+            scale="2 2 2"
+            color="#FFD700"
+          ></a-text>
+          <a-entity class="loading-spinner"></a-entity>
+        </a-entity>
+      </a-marker>
+
+      <!-- Marker: Turtle -->
+      <a-marker
+        type="pattern"
+        url="turtle.patt"
+        emitevents="true"
+        id="markerTurtle"
+      >
+        <a-entity
+          id="turtle-model"
+          gltf-model="#turtle-glb"
+          position="0 0.5 0"
+          scale="0.02 0.02 0.02"
+          rotation="0 0 0"
+          animation="property: rotation; to: 0 360 0; dur: 5000; loop: true"
+        ></a-entity>
+        <a-text
+          value="Sea Turtle"
+          position="0 2 0"
+          color="#32CD32"
+          align="center"
+          scale="2 2 2"
+        ></a-text>
+        <a-entity class="model-loading" position="0 2 0" id="turtle-loading">
+          <a-text
+            value="Loading Turtle..."
+            align="center"
+            scale="2 2 2"
+            color="#32CD32"
+          ></a-text>
+          <a-entity class="loading-spinner"></a-entity>
+        </a-entity>
+      </a-marker>
+      <!-- Marker: Octopus -->
+      <a-marker
+        type="pattern"
+        url="octopus.patt"
+        emitevents="true"
+        id="markerOctopus"
+      >
+        <a-entity
+          id="octopus-model"
+          gltf-model="#octopus-glb"
+          position="0 1 0"
+          scale="0.5 0.5 0.5"
+          rotation="0 0 0"
+          animation="property: rotation; to: 0 360 0; dur: 5000; loop: true"
+        ></a-entity>
+        <a-text
+          value="Octopus"
+          position="0 2 0"
+          color="#9370DB"
+          align="center"
+          scale="2 2 2"
+        ></a-text>
+        <a-entity class="model-loading" position="0 2 0" id="octopus-loading">
+          <a-text
+            value="Loading Octopus..."
+            align="center"
+            scale="2 2 2"
+            color="#9370DB"
+          ></a-text>
+          <a-entity class="loading-spinner"></a-entity>
+        </a-entity>
+      </a-marker>
+
+      <!-- Marker: Shell -->
+      <a-marker
+        type="pattern"
+        url="shell.patt"
+        emitevents="true"
+        id="markerShell"
+      >
+        <a-entity
+          id="shell-model"
+          gltf-model="#shell-glb"
+          position="0 1 0"
+          scale="5 5 5"
+          rotation="0 0 0"
+          animation="property: rotation; to: 0 360 0; dur: 8000; loop: true"
+        ></a-entity>
+        <a-text
+          value="Sea Shell"
+          position="0 2 0"
+          color="#FFA500"
+          align="center"
+          scale="2 2 2"
+        ></a-text>
+        <a-entity class="model-loading" position="0 2 0" id="shell-loading">
+          <a-text
+            value="Loading Shell..."
+            align="center"
+            scale="2 2 2"
+            color="#FFA500"
+          ></a-text>
+          <a-entity class="loading-spinner"></a-entity>
+        </a-entity>
+      </a-marker>
+
+      <!-- Camera -->
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      // Hide initial loading screen when scene is fully loaded
+      document.querySelector("a-scene").addEventListener("loaded", () => {
+        document.querySelector(".loading").style.display = "none";
+      });
+
+      // Register bubble animation component
+      AFRAME.registerComponent("bubble-animation", {
+        init: function () {
+          this.el.setAttribute("animation", {
+            property: "position",
+            to: `0 10 0`,
+            dur: 5000,
+            loop: true,
+            easing: "linear",
+          });
+        },
+      });
+
+      // Add animated bubbles
+      const bubbleContainer = document.querySelector("#bubbles");
+      for (let i = 0; i < 10; i++) {
+        const bubble = document.createElement("a-entity");
+        bubble.setAttribute("class", "bubble");
+        bubble.setAttribute(
+          "position",
+          `${Math.random() * 4 - 2} ${Math.random() * -3} ${Math.random() * -5}`
+        );
+        bubble.setAttribute("scale", "0.4 0.4 0.4");
+        bubble.setAttribute("bubble-animation", "");
+        bubble.innerHTML =
+          '<a-sphere color="#ffffff" opacity="0.3" radius="0.5"></a-sphere>';
+        bubbleContainer.appendChild(bubble);
+      }
+
+      // Handle model load and error events
+      const models = ["clownfish", "turtle", "octopus", "shell"];
+      models.forEach((model) => {
+        const modelEntity = document.querySelector(`#${model}-model`);
+        const loadingEntity = document.querySelector(`#${model}-loading`);
+
+        // Initially hide the error/loading message
+        loadingEntity.setAttribute("visible", "true");
+
+        modelEntity.addEventListener("model-loaded", () => {
+          console.log(`${model} model loaded successfully`);
+          loadingEntity.setAttribute("visible", "false");
+        });
+
+        modelEntity.addEventListener("model-error", (event) => {
+          console.error(`Error loading ${model} model:`, event);
+          loadingEntity
+            .querySelector("a-text")
+            .setAttribute("value", `Error loading ${model}`);
+        });
+      });
+
+      // Wait for all assets to load
+      document
+        .querySelector("a-assets")
+        .addEventListener("loaded", function () {
+          console.log("All assets loaded successfully");
+          // Hide all loading indicators once assets are loaded
+          document.querySelectorAll(".model-loading").forEach((el) => {
+            el.setAttribute("visible", "false");
+          });
+        });
+
+      // Camera error handler
+      document
+        .querySelector("a-scene")
+        .addEventListener("camera-error", function (e) {
+          console.error("Camera access error:", e.detail);
+          alert(
+            "Camera access is required. Please allow camera access and reload the page."
+          );
+        });
+
+      // Sound toggle functionality
+      const soundToggle = document.getElementById("soundToggle");
+      const backgroundSound = document.querySelector("#background-sound");
+      let isSoundOn = true;
+
+      soundToggle.addEventListener("click", () => {
+        if (isSoundOn) {
+          backgroundSound.components.sound.pauseSound();
+          soundToggle.textContent = "🔇";
+        } else {
+          backgroundSound.components.sound.playSound();
+          soundToggle.textContent = "🔊";
+        }
+        isSoundOn = !isSoundOn;
+      });
+    </script>
+  </body>
+</html>
